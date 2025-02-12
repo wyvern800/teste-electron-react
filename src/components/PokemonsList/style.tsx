@@ -1,4 +1,5 @@
 import styled from 'styled-components';
+import { isColorDark } from '../../shared/utils';
 
 export const Container = styled.div`
   padding: 20px;
@@ -33,11 +34,18 @@ export const TypesContainer = styled.div`
   justify-content: center;
 `;
 
-export const TypeBadge = styled.span`
-  background-color: #f0f0f0;
+interface TypeBadgeProps {
+  color: string;
+}
+export const TypeBadge = styled.span<TypeBadgeProps>`
+  background-color: ${(props) => props.color};
   padding: 4px 8px;
   border-radius: 4px;
   font-size: 0.9em;
+
+  span {
+    color: ${(props) => (isColorDark(props.color) ? '#fff' : '#000')};
+  }
 `;
 
 export const StatsContainer = styled.div`
