@@ -3,7 +3,6 @@ import styled from 'styled-components';
 export const SearchContainer = styled.div`
   margin-bottom: 20px;
   position: relative;
-  max-width: 300px;
   width: 100%;
 `;
 
@@ -13,6 +12,7 @@ export const SearchInput = styled.input`
   border: 1px solid #ccc;
   border-radius: 4px;
   font-size: 16px;
+  box-sizing: border-box;
   
   &:focus {
     outline: none;
