@@ -1,4 +1,4 @@
-import React, { useEffect } from 'react';
+import React, { useEffect, useRef, useCallback, useState } from 'react';
 import { pokemonService } from '../../shared/services/pokemon.service';
 import { useGlobalContext } from '../../features/contexts/global';
 import { mainLogger as logger } from '../../shared/services/logger.service';
@@ -15,34 +15,77 @@ import {
 
 const PokemonsList: React.FC = () => {
   const { data, setData } = useGlobalContext();
+  const [isLoading, setIsLoading] = useState(false);
 
-  useEffect(() => {
-    const fetchPokemons = async () => {
-      const response = await pokemonService.getPokemonList();
+  const loadMoreRef = useRef(null);
+
+  /**
+   * Fetches a page of Pokemon data from the API
+   * Updates the global state with new Pokemon data and pagination information
+   * @param page - The page number to fetch
+   */
+  const fetchPokemons = useCallback(async (page: number) => {
+    try {
+      setIsLoading(true);
+      const response = await pokemonService.getPokemonList(page);
       
       setData((prevState) => ({ 
         ...prevState, 
-        pokemonsList: response.results,
+        pokemonsList: page === 1 
+          ? response.results 
+          : [...(prevState.pokemonsList || []), ...response.results],
         paginationData: {
-          currentPage: 1,
+          currentPage: page,
           totalPages: Math.ceil(response.count / 20)
         }
       }));
       logger.info('Pokemons list fetched successfully', response);
+    } catch (error: unknown) {
+      logger.error('Error fetching pokemons', error as Error);
+    } finally {
+      setIsLoading(false);
+    }
+  }, [setData]);
+
+  useEffect(() => {
+    fetchPokemons(1);
+  }, [fetchPokemons]);
+
+  // Infinite scrolling implementation using Intersection Observer
+  useEffect(() => {
+    // Create an observer that triggers when the load more element becomes visible
+    const observer = new IntersectionObserver(
+      (entries) => {
+        const [entry] = entries;
+        // Load more Pokemon when the element is visible, not already loading, and there are more pages
+        if (entry.isIntersecting && !isLoading && data.paginationData?.currentPage < data.paginationData?.totalPages) {
+          fetchPokemons(data.paginationData.currentPage + 1);
+        }
+      },
+      { threshold: 0.1 }
+    );
+
+    if (loadMoreRef.current) {
+      observer.observe(loadMoreRef.current);
+    }
+
+    return () => {
+      if (loadMoreRef.current) {
+        observer.unobserve(loadMoreRef.current);
+      }
     };
+  }, [fetchPokemons, data.paginationData, isLoading]);
 
-    fetchPokemons();
-  }, []);
-
-  if (!data.pokemonsList) {
+  if (!data.pokemonsList && !isLoading) {
     return <div>Loading...</div>;
   }
 
   return (
     <Container>
       <Grid>
-        {data.pokemonsList.map((pokemon) => (
+        {data.pokemonsList?.map((pokemon) => (
           <Card key={pokemon.id}>
+
             <PokemonImage 
               src={pokemon.sprites.other["official-artwork"].front_default} 
               alt={pokemon.name}
@@ -50,6 +93,7 @@ const PokemonsList: React.FC = () => {
             <PokemonName>
               {pokemon.name}
             </PokemonName>
+
             <TypesContainer>
               {pokemon.types.map((type) => (
                 <TypeBadge key={type.type.name}>
@@ -57,6 +101,7 @@ const PokemonsList: React.FC = () => {
                 </TypeBadge>
               ))}
             </TypesContainer>
+
             <StatsContainer>
               <p>Height: {pokemon.height / 10}m</p>
               <p>Weight: {pokemon.weight / 10}kg</p>
@@ -64,6 +109,10 @@ const PokemonsList: React.FC = () => {
           </Card>
         ))}
       </Grid>
+
+      <div ref={loadMoreRef} style={{ height: '20px', margin: '20px 0' }}>
+        {isLoading && <div>Loading more Pokémon...</div>}
+      </div>
     </Container>
   );
 };
