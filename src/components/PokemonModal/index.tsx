@@ -42,6 +42,34 @@ interface PokemonModalProps {
   onClose: () => void;
 }
 
+interface EvolutionChainProps {
+  chain: any;
+  isDark: boolean;
+}
+
+const EvolutionChain: React.FC<EvolutionChainProps> = ({ chain, isDark }) => {
+  const getPokemonId = (url: string) => url.split("/").slice(-2, -1)[0];
+
+  return (
+    <>
+      <EvolutionItem isDark={isDark}>
+        <img
+          src={`${spritesUrl}${getPokemonId(chain.species.url)}.png`}
+          alt={chain.species.name}
+        />
+        <p>{capitalizeFirst(chain.species.name)}</p>
+      </EvolutionItem>
+
+      {chain.evolves_to.length > 0 && (
+        <>
+          <EvolutionArrow isDark={isDark}>→</EvolutionArrow>
+          <EvolutionChain chain={chain.evolves_to[0]} isDark={isDark} />
+        </>
+      )}
+    </>
+  );
+};
+
 const PokemonModal: React.FC<PokemonModalProps> = ({ pokemon, isOpen, onClose }) => {
   const [activeTab, setActiveTab] = useState<"about" | "stats">("about");
   const { data } = useGlobalContext();
@@ -138,7 +166,7 @@ const PokemonModal: React.FC<PokemonModalProps> = ({ pokemon, isOpen, onClose })
       <TabContent active={activeTab === "stats"}>
         {pokemon.stats?.map((stat: any) => (
           <StatRow key={stat.stat.name}>
-            <StatLabel isDark={data.isDarkMode}>{getStatIcon(stat.stat.name)} {stat.stat.name}</StatLabel>
+            <StatLabel isDark={data.isDarkMode}>{getStatIcon(stat.stat.name)} {capitalizeFirst(stat.stat.name)}</StatLabel>
             <StatValue isDark={data.isDarkMode}>{stat.base_stat}</StatValue>
             <StatBar isDark={data.isDarkMode}>
               <StatFill
@@ -152,64 +180,7 @@ const PokemonModal: React.FC<PokemonModalProps> = ({ pokemon, isOpen, onClose })
 
         {pokemon.evolution_chain && (
           <EvolutionContainer isDark={data.isDarkMode}>
-            <EvolutionItem isDark={data.isDarkMode}>
-              <img
-                src={`${spritesUrl}${pokemon.evolution_chain.chain.species.url
-                  .split("/")
-                  .slice(-2, -1)}.png`}
-                alt={pokemon.evolution_chain.chain.species.name}
-              />
-              <p>
-                {pokemon.evolution_chain.chain.species.name}
-              </p>
-            </EvolutionItem>
-
-            {pokemon.evolution_chain.chain.evolves_to.length > 0 && (
-              <>
-                <EvolutionArrow isDark={data.isDarkMode}>→</EvolutionArrow>
-                <EvolutionItem isDark={data.isDarkMode}>
-                  <img
-                    src={`${spritesUrl}${pokemon.evolution_chain.chain.evolves_to[0].species.url
-                      .split("/")
-                      .slice(-2, -1)}.png`}
-                    alt={
-                      pokemon.evolution_chain.chain
-                        .evolves_to[0].species.name
-                    }
-                  />
-                  <p>
-                    {
-                      pokemon.evolution_chain.chain
-                        .evolves_to[0].species.name
-                    }
-                  </p>
-                </EvolutionItem>
-
-                {pokemon.evolution_chain.chain.evolves_to[0]
-                  .evolves_to.length > 0 && (
-                  <>
-                    <EvolutionArrow isDark={data.isDarkMode}>→</EvolutionArrow>
-                    <EvolutionItem isDark={data.isDarkMode}>
-                      <img
-                        src={`${spritesUrl}${pokemon.evolution_chain.chain.evolves_to[0].evolves_to[0].species.url
-                          .split("/")
-                          .slice(-2, -1)}.png`}
-                        alt={
-                          pokemon.evolution_chain.chain
-                            .evolves_to[0].evolves_to[0].species.name
-                        }
-                      />
-                      <p>
-                        {
-                          pokemon.evolution_chain.chain
-                            .evolves_to[0].evolves_to[0].species.name
-                        }
-                      </p>
-                    </EvolutionItem>
-                  </>
-                )}
-              </>
-            )}
+            <EvolutionChain chain={pokemon.evolution_chain.chain} isDark={data.isDarkMode} />
           </EvolutionContainer>
         )}
       </TabContent>
