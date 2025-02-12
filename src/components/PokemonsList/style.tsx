@@ -247,3 +247,7 @@ export const EvolutionArrow = styled.div`
   font-size: 1.5rem;
   color: #666;
 `;
+
+export const EffectiveSpan = styled.span`
+  font-weight: bold;
+`;
