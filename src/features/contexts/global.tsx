@@ -11,7 +11,8 @@ export const GlobalContext = createContext<{
       totalPages: 1
     },
     pokemonsList: [],
-    selectedPokemon: null
+    selectedPokemon: null,
+    isDarkMode: false
   },
   setData: () => {
     throw new Error("setData function must be overridden");
@@ -25,7 +26,8 @@ export default function GlobalContextProvider({ children }: { children: React.Re
       totalPages: 1
     },
     pokemonsList: [],
-    selectedPokemon: null
+    selectedPokemon: null,
+    isDarkMode: false
   });
 
   return (

@@ -10,6 +10,7 @@ interface GlobalContextType {
   pokemonsList?: PokemonDetail[];
   selectedPokemon?: PokemonDetail | null;
   autoCompletionList?: AutoCompletion[];
+  isDarkMode: boolean;
 }
 
 export { GlobalContextType };
