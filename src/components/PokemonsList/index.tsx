@@ -19,7 +19,6 @@ import {
   PokemonImage,
   PokemonName,
   TypesContainer,
-  TypeBadge,
   StatsContainer,
   TabsContainer,
   Tab,
@@ -34,6 +33,7 @@ import {
   EvolutionArrow,
   EffectiveSpan
 } from "./style";
+import { Badge } from "../Badge";
 import Loading from "../Loading";
 import {
   getBadgeColorByType,
@@ -167,21 +167,16 @@ const PokemonsList: React.FC = () => {
 
             <TypesContainer>
               {pokemon.types.map((type) => (
-                <TypeBadge
+                <Badge
                   key={type.type.name}
+                  type={type.type.name}
                   color={getBadgeColorByType(type.type.name)}
-                >
-                  <span>
-                    {getEmojiByBadgeName(type.type.name)} {capitalizeFirst(type.type.name)}
-                  </span>
-                </TypeBadge>
+                  emoji={getEmojiByBadgeName(type.type.name)}
+                />
               ))}
             </TypesContainer>
 
-            <StatsContainer>
-              <p>Height: {getMeasure(pokemon.height)}m</p>
-              <p>Weight: {getMeasure(pokemon.weight)}kg</p>
-            </StatsContainer>
+           
           </Card>
         ))}
       </Grid>
@@ -210,14 +205,12 @@ const PokemonsList: React.FC = () => {
 
               <TypesContainer style={{ marginBottom: "15px", display: "flex", justifyContent: "flex-start" }}>
                 {selectedPokemon.types.map((type: any) => (
-                  <TypeBadge
+                  <Badge
                     key={type.type.name}
+                    type={type.type.name}
                     color={getBadgeColorByType(type.type.name)}
-                  >
-                    <span>
-                      {getEmojiByBadgeName(type.type.name)} {capitalizeFirst(type.type.name)}
-                    </span>
-                  </TypeBadge>
+                    emoji={getEmojiByBadgeName(type.type.name)}
+                  />
                 ))}
               </TypesContainer>
 
