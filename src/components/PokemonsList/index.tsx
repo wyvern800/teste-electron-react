@@ -12,6 +12,7 @@ import {
   TypeBadge,
   StatsContainer
 } from './style';
+import Loading from "../Loading";
 
 const PokemonsList: React.FC = () => {
   const { data, setData } = useGlobalContext();
@@ -77,11 +78,12 @@ const PokemonsList: React.FC = () => {
   }, [fetchPokemons, data.paginationData, isLoading]);
 
   if (!data.pokemonsList && !isLoading) {
-    return <div>Loading...</div>;
+    return <Loading />;
   }
 
   return (
     <Container>
+      <Loading />
       <Grid>
         {data.pokemonsList?.map((pokemon) => (
           <Card key={pokemon.id}>
@@ -111,7 +113,7 @@ const PokemonsList: React.FC = () => {
       </Grid>
 
       <div ref={loadMoreRef} style={{ height: '20px', margin: '20px 0' }}>
-        {isLoading && <div>Loading more Pokémon...</div>}
+        {isLoading && <Loading />}
       </div>
     </Container>
   );
