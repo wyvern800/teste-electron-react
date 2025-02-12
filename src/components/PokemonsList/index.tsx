@@ -1,5 +1,5 @@
 import React, { useEffect, useRef, useCallback, useState } from 'react';
-import { pokemonService } from '../../shared/services/pokemon.service';
+import { pokemonService, PokemonDetail } from '../../shared/services/pokemon.service';
 import { useGlobalContext } from '../../features/contexts/global';
 import { mainLogger as logger } from '../../shared/services/logger.service';
 import {
@@ -17,19 +17,42 @@ import {
   PokemonName,
   TypesContainer,
   TypeBadge,
-  StatsContainer
+  StatsContainer,
+  TabsContainer,
+  Tab,
+  TabContent,
+  StatRow,
+  StatLabel,
+  StatValue,
+  StatBar,
+  StatFill,
+  EvolutionContainer,
+  EvolutionItem,
+  EvolutionArrow
 } from './style';
 import Loading from "../Loading";
-import { getBadgeColorByType, getEmojiByBadgeName, typeEffectiveness } from "../../shared/utils";
+import { getBadgeColorByType, getEmojiByBadgeName, typeEffectiveness, getBarColor } from "../../shared/utils";
+
+const spritesUrl = `https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/other/official-artwork/`;
 
 const PokemonsList: React.FC = () => {
   const { data, setData } = useGlobalContext();
-  const { selectedPokemon } = data;
-  
+
+  type PokemonWithEvolution = PokemonDetail & { evolution_chain?: any };
+  const selectedPokemon = data.selectedPokemon as PokemonWithEvolution;
+
   const [isLoading, setIsLoading] = useState(false);
   const [isModalOpen, setIsModalOpen] = useState(false);
-
+  const [activeTab, setActiveTab] = useState<'about' | 'stats'>('about');
   const loadMoreRef = useRef(null);
+
+  const fetchPokemonWithEvolutions = async (id: number) => {
+    const pokemonDetails = await pokemonService.getPokemonDetail(id);
+    setData((prevState) => ({
+      ...prevState,
+      selectedPokemon: pokemonDetails
+    }));
+  };
 
   /**
    * Fetches a page of Pokemon data from the API
@@ -88,6 +111,19 @@ const PokemonsList: React.FC = () => {
     };
   }, [fetchPokemons, data.paginationData, isLoading]);
 
+  const closeModal = async () => {
+    setData((prevState) => ({
+      ...prevState,
+      selectedPokemon: null
+    }));
+    setIsModalOpen(false); 
+    setActiveTab('about');
+  }
+
+  const getMeasure = (value: number) => {
+    return value / 10;
+  }
+
   if (!data.pokemonsList && !isLoading) {
     return <Loading />;
   }
@@ -99,10 +135,7 @@ const PokemonsList: React.FC = () => {
           <Card 
             key={pokemon.id}
             onClick={() => {
-              setData((prevState) => ({ 
-                ...prevState, 
-                selectedPokemon: pokemon
-              }));
+              fetchPokemonWithEvolutions(pokemon.id);
               setIsModalOpen(true);
             }}
             style={{ cursor: 'pointer' }}
@@ -126,8 +159,8 @@ const PokemonsList: React.FC = () => {
             </TypesContainer>
 
             <StatsContainer>
-              <p>Height: {pokemon.height / 10}m</p>
-              <p>Weight: {pokemon.weight / 10}kg</p>
+              <p>Height: {getMeasure(pokemon.height)}m</p>
+              <p>Weight: {getMeasure(pokemon.weight)}kg</p>
             </StatsContainer>
           </Card>
         ))}
@@ -139,7 +172,7 @@ const PokemonsList: React.FC = () => {
 
       <ModalOverlay isOpen={isModalOpen}>
         <ModalContent>
-          <CloseButton onClick={() => setIsModalOpen(false)}>&times;</CloseButton>
+          <CloseButton onClick={() => closeModal()}>&times;</CloseButton>
           
           {selectedPokemon && (
             <>
@@ -160,28 +193,98 @@ const PokemonsList: React.FC = () => {
                 ))}
               </TypesContainer>
 
-              <StatsContainer>
-                <p>Height: {selectedPokemon.height / 10}m</p>
-                <p>Weight: {selectedPokemon.weight / 10}kg</p>
-              </StatsContainer>
+              <TabsContainer>
+                <Tab 
+                  active={activeTab === 'about'} 
+                  onClick={() => setActiveTab('about')}
+                >
+                  About
+                </Tab>
+                <Tab 
+                  active={activeTab === 'stats'} 
+                  onClick={() => setActiveTab('stats')}
+                >
+                  Stats
+                </Tab>
+              </TabsContainer>
 
-              {selectedPokemon.types.map((pokemonType: any) => (
-                <EffectivenessSection key={pokemonType.type.name}>
-                  <h3>Type: {pokemonType.type.name}</h3>
-                  <EffectivenessList>
-                    {typeEffectiveness[pokemonType.type.name]?.strong.map((type: string) => (
-                      <EffectivenessItem key={`strong-${type}`} effect="strong">
-                        Strong against {type}
-                      </EffectivenessItem>
-                    ))}
-                    {typeEffectiveness[pokemonType.type.name]?.weak.map((type: string) => (
-                      <EffectivenessItem key={`weak-${type}`} effect="weak">
-                        Weak against {type}
-                      </EffectivenessItem>
-                    ))}
-                  </EffectivenessList>
-                </EffectivenessSection>
-              ))}
+              <TabContent active={activeTab === 'about'}>
+                <StatsContainer>
+                  <p>Height: {getMeasure(selectedPokemon.height)}m</p>
+                  <p>Weight: {getMeasure(selectedPokemon.weight)}kg</p>
+                </StatsContainer>
+
+                {selectedPokemon.types.map((pokemonType: any) => (
+                  <EffectivenessSection key={pokemonType.type.name}>
+                    <h3>Type: {pokemonType.type.name}</h3>
+                    <EffectivenessList>
+                      {typeEffectiveness[pokemonType.type.name]?.strong.map((type: string) => (
+                        <EffectivenessItem key={`strong-${type}`} effect="strong">
+                          Strong against {type}
+                        </EffectivenessItem>
+                      ))}
+                      {typeEffectiveness[pokemonType.type.name]?.weak.map((type: string) => (
+                        <EffectivenessItem key={`weak-${type}`} effect="weak">
+                          Weak against {type}
+                        </EffectivenessItem>
+                      ))}
+                    </EffectivenessList>
+                  </EffectivenessSection>
+                ))}
+              </TabContent>
+
+              <TabContent active={activeTab === 'stats'}>
+                {selectedPokemon.stats?.map((stat: any) => (
+                  <StatRow key={stat.stat.name}>
+                    <StatLabel>{stat.stat.name}</StatLabel>
+                    <StatValue>{stat.base_stat}</StatValue>
+                    <StatBar>
+                      <StatFill value={stat.base_stat} fillColor={getBarColor(stat.stat.name)}/>
+                    </StatBar>
+                  </StatRow>
+                ))}
+
+                {selectedPokemon.evolution_chain && (
+                  <EvolutionContainer>
+                    {/* First evolution */}
+                    <EvolutionItem>
+                      <img 
+                        src={`${spritesUrl}${selectedPokemon.evolution_chain.chain.species.url.split('/').slice(-2, -1)}.png`}
+                        alt={selectedPokemon.evolution_chain.chain.species.name} 
+                      />
+                      <p>{selectedPokemon.evolution_chain.chain.species.name}</p>
+                    </EvolutionItem>
+
+                    {selectedPokemon.evolution_chain.chain.evolves_to.length > 0 && (
+                      <>
+                        <EvolutionArrow>→</EvolutionArrow>
+                        {/* Second evolution */}
+                        <EvolutionItem>
+                          <img 
+                            src={`${spritesUrl}${selectedPokemon.evolution_chain.chain.evolves_to[0].species.url.split('/').slice(-2, -1)}.png`}
+                            alt={selectedPokemon.evolution_chain.chain.evolves_to[0].species.name}
+                          />
+                          <p>{selectedPokemon.evolution_chain.chain.evolves_to[0].species.name}</p>
+                        </EvolutionItem>
+
+                        {selectedPokemon.evolution_chain.chain.evolves_to[0].evolves_to.length > 0 && (
+                          <>
+                            <EvolutionArrow>→</EvolutionArrow>
+                            {/* Third evolution */}
+                            <EvolutionItem>
+                              <img 
+                                src={`${spritesUrl}${selectedPokemon.evolution_chain.chain.evolves_to[0].evolves_to[0].species.url.split('/').slice(-2, -1)}.png`}
+                                alt={selectedPokemon.evolution_chain.chain.evolves_to[0].evolves_to[0].species.name}
+                              />
+                              <p>{selectedPokemon.evolution_chain.chain.evolves_to[0].evolves_to[0].species.name}</p>
+                            </EvolutionItem>
+                          </>
+                        )}
+                      </>
+                    )}
+                  </EvolutionContainer>
+                )}
+              </TabContent>
             </>
           )}
         </ModalContent>

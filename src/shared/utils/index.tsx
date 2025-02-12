@@ -49,6 +49,18 @@ export const getBadgeColorByType = (type: string): string => {
 
     return emojis[badgeName] || '❓';
   };
+  
+  export const getBarColor = (statName: number): string => {
+    const colors: { [key: string]: string } = {
+      'hp': '#ff5959',
+      'attack': '#f5ac78',
+      'defense': '#fae078',
+      'special-attack': '#9db7f5',
+      'special-defense': '#a7db8d',
+      'speed': '#fa92b2'
+    }
+    return colors[statName] || '#f0f0f0';
+  }
 
   export const isColorDark = (hexColor: string): boolean => {
     // Remove the hash if present

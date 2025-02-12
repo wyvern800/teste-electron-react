@@ -147,7 +147,6 @@ export const TypeBadge = styled.span<TypeBadgeProps>`
   padding: clamp(2px, 1vw, 4px) clamp(4px, 1.5vw, 8px);
   border-radius: 4px;
   font-size: clamp(0.7rem, 2vw, 0.9rem);
-  font-weight: bold;
 
   span {
     color: ${(props) => (isColorDark(props.color) ? '#fff' : '#000')};
@@ -157,5 +156,94 @@ export const TypeBadge = styled.span<TypeBadgeProps>`
 export const StatsContainer = styled.div`
   margin-top: clamp(4px, 1.5vw, 8px);
   font-size: clamp(0.75rem, 2vw, 0.9rem);
+  color: #666;
+`;
+
+export const TabsContainer = styled.div`
+  display: flex;
+  gap: 10px;
+  margin-bottom: 20px;
+`;
+
+export const Tab = styled.button<{ active: boolean }>`
+  padding: 8px 16px;
+  border: none;
+  background: ${props => props.active ? '#4a90e2' : '#e0e0e0'};
+  color: ${props => props.active ? 'white' : '#666'};
+  border-radius: 20px;
+  cursor: pointer;
+  font-size: 0.9rem;
+  transition: all 0.2s ease;
+
+  &:hover {
+    background: ${props => props.active ? '#357abd' : '#d0d0d0'};
+  }
+`;
+
+export const TabContent = styled.div<{ active: boolean }>`
+  display: ${props => props.active ? 'block' : 'none'};
+`;
+
+export const StatBar = styled.div`
+  width: 100%;
+  height: 8px;
+  background: #eee;
+  border-radius: 4px;
+  margin-top: 4px;
+  overflow: hidden;
+`;
+
+export const StatFill = styled.div<{ value: number, fillColor: string }>`
+  width: ${props => Math.min((props.value / 255) * 100, 100)}%;
+  height: 100%;
+  background: ${props => props.fillColor ?? `#4a90e2`};
+  border-radius: 4px;
+`;
+
+export const StatRow = styled.div`
+  display: flex;
+  align-items: center;
+  margin-bottom: 12px;
+  gap: 10px;
+`;
+
+export const StatLabel = styled.span`
+  font-size: 0.9rem;
+  color: #666;
+  width: 100px;
+`;
+
+export const StatValue = styled.span`
+  font-size: 0.9rem;
+  color: #333;
+  width: 40px;
+`;
+
+export const EvolutionContainer = styled.div`
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 20px;
+  margin-top: 20px;
+  flex-wrap: wrap;
+`;
+
+export const EvolutionItem = styled.div`
+  text-align: center;
+  img {
+    width: 80px;
+    height: 80px;
+    object-fit: contain;
+  }
+  p {
+    margin: 5px 0;
+    font-size: 0.9rem;
+    color: #666;
+    text-transform: capitalize;
+  }
+`;
+
+export const EvolutionArrow = styled.div`
+  font-size: 1.5rem;
   color: #666;
 `;

@@ -30,6 +30,33 @@ interface PokemonDetail {
       url: string;
     };
   }>;
+  stats: Array<{
+    base_stat: number;
+    stat: {
+      name: string;
+    };
+  }>;
+}
+
+interface EvolutionChain {
+  chain: {
+    species: {
+      name: string;
+      url: string;
+    };
+    evolves_to: Array<{
+      species: {
+        name: string;
+        url: string;
+      };
+      evolves_to: Array<{
+        species: {
+          name: string;
+          url: string;
+        };
+      }>;
+    }>;
+  };
 }
 
 interface AutoCompletion {
@@ -94,11 +121,30 @@ class PokemonService {
    */
   public async getPokemonDetail(
     nameOrId: string | number
-  ): Promise<PokemonDetail> {
-    const response = await this.axios.get<PokemonDetail>(
+  ): Promise<PokemonDetail & { evolution_chain?: EvolutionChain }> {
+    const pokemonResponse = await this.axios.get<PokemonDetail>(
       `/pokemon/${nameOrId}`
     );
-    return response.data;
+    
+    try {
+      // Get species data to get evolution chain URL
+      const speciesResponse = await this.axios.get(
+        `/pokemon-species/${nameOrId}`
+      );
+      
+      // Get evolution chain data
+      const evolutionResponse = await this.axios.get<EvolutionChain>(
+        speciesResponse.data.evolution_chain.url
+      );
+
+      return {
+        ...pokemonResponse.data,
+        evolution_chain: evolutionResponse.data
+      };
+    } catch (error) {
+      console.error('Error fetching evolution chain:', error);
+      return pokemonResponse.data;
+    }
   }
 
   /**
@@ -113,4 +159,4 @@ class PokemonService {
 }
 
 export const pokemonService = PokemonService.getInstance();
-export type { PokemonListResponse, PokemonDetail, AutoCompletion };
+export type { PokemonListResponse, PokemonDetail, AutoCompletion, EvolutionChain };
