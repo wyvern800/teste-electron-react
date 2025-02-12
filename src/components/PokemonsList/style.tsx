@@ -3,6 +3,7 @@ import { isColorDark } from '../../shared/utils';
 
 export const Container = styled.div`
   padding: 20px;
+  border: 1px solid black;
 `;
 
 export const Grid = styled.div`
@@ -42,6 +43,7 @@ export const TypeBadge = styled.span<TypeBadgeProps>`
   padding: 4px 8px;
   border-radius: 4px;
   font-size: 0.9em;
+  font-weight: bold;
 
   span {
     color: ${(props) => (isColorDark(props.color) ? '#fff' : '#000')};

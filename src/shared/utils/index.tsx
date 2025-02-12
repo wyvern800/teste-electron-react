@@ -25,6 +25,31 @@ export const getBadgeColorByType = (type: string): string => {
     return colors[type] || '#f0f0f0';
   }
 
+  export const getEmojiByBadgeName = (badgeName: string): string => {
+    const emojis: { [key: string]: string } = {
+      normal: '🔰',
+      fire: '🔥',
+      water: '💧',
+      electric: '⚡',
+      grass: '🌿',
+      ice: '❄️',
+      fighting: '🥊',
+      poison: '☠️',
+      ground: '🌍',
+      flying: '🕊️',
+      psychic: '🔮',
+      bug: '🐛',
+      rock: '🗿',
+      ghost: '👻',
+      dragon: '🐉',
+      dark: '🌑',
+      steel: '🔩',
+      fairy: '🧚'
+    };
+
+    return emojis[badgeName] || '❓';
+  };
+
   export const isColorDark = (hexColor: string): boolean => {
     // Remove the hash if present
     const color = hexColor.replace('#', '');

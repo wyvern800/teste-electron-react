@@ -13,7 +13,7 @@ import {
   StatsContainer
 } from './style';
 import Loading from "../Loading";
-import { getBadgeColorByType } from "../../shared/utils";
+import { getBadgeColorByType, getEmojiByBadgeName } from "../../shared/utils";
 
 const PokemonsList: React.FC = () => {
   const { data, setData } = useGlobalContext();
@@ -84,7 +84,6 @@ const PokemonsList: React.FC = () => {
 
   return (
     <Container>
-      <Loading />
       <Grid>
         {data.pokemonsList?.map((pokemon) => (
           <Card key={pokemon.id}>
@@ -100,7 +99,7 @@ const PokemonsList: React.FC = () => {
             <TypesContainer>
               {pokemon.types.map((type) => (
                 <TypeBadge key={type.type.name} color={getBadgeColorByType(type.type.name)}>
-                  <span>{type.type.name}</span>
+                  <span>{getEmojiByBadgeName(type.type.name)} {type.type.name}</span>
                 </TypeBadge>
               ))}
             </TypesContainer>
