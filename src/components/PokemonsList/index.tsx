@@ -5,36 +5,10 @@ import {
 } from "../../shared/services/pokemon.service";
 import { useGlobalContext } from "../../features/contexts/global";
 import { mainLogger as logger } from "../../shared/services/logger.service";
-import {
-  Container,
-  ModalOverlay,
-  ModalContent,
-  CloseButton,
-  ModalImage,
-  EffectivenessSection,
-  EffectivenessList,
-  EffectivenessItem,
-  Grid,
-  Card,
-  PokemonImage,
-  PokemonName,
-  TypesContainer,
-  StatsContainer,
-  TabsContainer,
-  Tab,
-  TabContent,
-  StatRow,
-  StatLabel,
-  StatValue,
-  StatBar,
-  StatFill,
-  EvolutionContainer,
-  EvolutionItem,
-  EvolutionArrow,
-  EffectiveSpan
-} from "./style";
+import { Container, Grid, Card, PokemonImage, PokemonName, TypesContainer } from "./style";
 import { Badge } from "../Badge";
 import Loading from "../Loading";
+import PokemonModal from "../PokemonModal";
 import {
   getBadgeColorByType,
   getEmojiByBadgeName,
@@ -48,12 +22,7 @@ const spritesUrl = `https://raw.githubusercontent.com/PokeAPI/sprites/master/spr
 const PokemonsList: React.FC = () => {
   const { data, setData } = useGlobalContext();
 
-  type PokemonWithEvolution = PokemonDetail & { evolution_chain?: any };
-  const selectedPokemon = data.selectedPokemon as PokemonWithEvolution;
-
   const [isLoading, setIsLoading] = useState(false);
-  const [isModalOpen, setIsModalOpen] = useState(false);
-  const [activeTab, setActiveTab] = useState<"about" | "stats">("about");
   const loadMoreRef = useRef(null);
 
   const fetchPokemonWithEvolutions = async (id: number) => {
@@ -129,19 +98,6 @@ const PokemonsList: React.FC = () => {
     };
   }, [fetchPokemons, data.paginationData, isLoading]);
 
-  const closeModal = async () => {
-    setData((prevState) => ({
-      ...prevState,
-      selectedPokemon: null,
-    }));
-    setIsModalOpen(false);
-    setActiveTab("about");
-  };
-
-  const getMeasure = (value: number) => {
-    return value / 10;
-  };
-
   if (!data.pokemonsList && !isLoading) {
     return <Loading />;
   }
@@ -152,10 +108,7 @@ const PokemonsList: React.FC = () => {
         {data.pokemonsList?.map((pokemon) => (
           <Card
             key={pokemon.id}
-            onClick={() => {
-              fetchPokemonWithEvolutions(pokemon.id);
-              setIsModalOpen(true);
-            }}
+            onClick={() => fetchPokemonWithEvolutions(pokemon.id)}
             style={{ cursor: "pointer" }}
             backgroundColor={getBadgeColorByType(pokemon.types[0].type.name)}
           >
@@ -185,169 +138,11 @@ const PokemonsList: React.FC = () => {
         {isLoading && <Loading />}
       </div>
 
-      <ModalOverlay isOpen={isModalOpen}>
-        <ModalContent>
-          <CloseButton onClick={() => closeModal()}>&times;</CloseButton>
-
-          {selectedPokemon && (
-            <>
-              <ModalImage
-                src={
-                  selectedPokemon.sprites.other["official-artwork"]
-                    .front_default
-                }
-                alt={selectedPokemon.name}
-              />
-
-              <PokemonName style={{ fontSize: "1.5rem" }}>
-                {selectedPokemon.name}
-              </PokemonName>
-
-              <TypesContainer style={{ marginBottom: "15px", display: "flex", justifyContent: "flex-start" }}>
-                {selectedPokemon.types.map((type: any) => (
-                  <Badge
-                    key={type.type.name}
-                    type={type.type.name}
-                    color={getBadgeColorByType(type.type.name)}
-                    emoji={getEmojiByBadgeName(type.type.name)}
-                  />
-                ))}
-              </TypesContainer>
-
-              <TabsContainer>
-                <Tab
-                  active={activeTab === "about"}
-                  onClick={() => setActiveTab("about")}
-                >
-                  About
-                </Tab>
-                <Tab
-                  active={activeTab === "stats"}
-                  onClick={() => setActiveTab("stats")}
-                >
-                  Stats
-                </Tab>
-              </TabsContainer>
-
-              <TabContent active={activeTab === "about"}>
-                <StatsContainer>
-                  <ul>
-                    <li>Height: {getMeasure(selectedPokemon.height)}m</li>
-                    <li>Weight: {getMeasure(selectedPokemon.weight)}kg</li>
-                  </ul>
-                </StatsContainer>
-
-                {selectedPokemon.types.map((pokemonType: any) => (
-                  <EffectivenessSection key={pokemonType.type.name}>
-                    <h3>Type: {capitalizeFirst(pokemonType.type.name)}</h3>
-                    <EffectivenessList>
-                      {typeEffectiveness[pokemonType.type.name]?.strong.map(
-                        (type: string) => (
-                          <EffectivenessItem
-                            key={`strong-${type}`}
-                            effect="strong"
-                          >
-                            Strong against <EffectiveSpan>{capitalizeFirst(type)}</EffectiveSpan>
-                          </EffectivenessItem>
-                        )
-                      )}
-                      {typeEffectiveness[pokemonType.type.name]?.weak.map(
-                        (type: string) => (
-                          <EffectivenessItem key={`weak-${type}`} effect="weak">
-                            Weak against <EffectiveSpan>{capitalizeFirst(type)}</EffectiveSpan>
-                          </EffectivenessItem>
-                        )
-                      )}
-                    </EffectivenessList>
-                  </EffectivenessSection>
-                ))}
-              </TabContent>
-
-              <TabContent active={activeTab === "stats"}>
-                {selectedPokemon.stats?.map((stat: any) => (
-                  <StatRow key={stat.stat.name}>
-                    <StatLabel>{stat.stat.name}</StatLabel>
-                    <StatValue>{stat.base_stat}</StatValue>
-                    <StatBar>
-                      <StatFill
-                        value={stat.base_stat}
-                        fillColor={getBarColor(stat.stat.name)}
-                      />
-                    </StatBar>
-                  </StatRow>
-                ))}
-
-                {selectedPokemon.evolution_chain && (
-                  <EvolutionContainer>
-                    {/* First evolution */}
-                    <EvolutionItem>
-                      <img
-                        src={`${spritesUrl}${selectedPokemon.evolution_chain.chain.species.url
-                          .split("/")
-                          .slice(-2, -1)}.png`}
-                        alt={selectedPokemon.evolution_chain.chain.species.name}
-                      />
-                      <p>
-                        {selectedPokemon.evolution_chain.chain.species.name}
-                      </p>
-                    </EvolutionItem>
-
-                    {selectedPokemon.evolution_chain.chain.evolves_to.length >
-                      0 && (
-                      <>
-                        <EvolutionArrow>→</EvolutionArrow>
-                        {/* Second evolution */}
-                        <EvolutionItem>
-                          <img
-                            src={`${spritesUrl}${selectedPokemon.evolution_chain.chain.evolves_to[0].species.url
-                              .split("/")
-                              .slice(-2, -1)}.png`}
-                            alt={
-                              selectedPokemon.evolution_chain.chain
-                                .evolves_to[0].species.name
-                            }
-                          />
-                          <p>
-                            {
-                              selectedPokemon.evolution_chain.chain
-                                .evolves_to[0].species.name
-                            }
-                          </p>
-                        </EvolutionItem>
-
-                        {selectedPokemon.evolution_chain.chain.evolves_to[0]
-                          .evolves_to.length > 0 && (
-                          <>
-                            <EvolutionArrow>→</EvolutionArrow>
-                            {/* Third evolution */}
-                            <EvolutionItem>
-                              <img
-                                src={`${spritesUrl}${selectedPokemon.evolution_chain.chain.evolves_to[0].evolves_to[0].species.url
-                                  .split("/")
-                                  .slice(-2, -1)}.png`}
-                                alt={
-                                  selectedPokemon.evolution_chain.chain
-                                    .evolves_to[0].evolves_to[0].species.name
-                                }
-                              />
-                              <p>
-                                {
-                                  selectedPokemon.evolution_chain.chain
-                                    .evolves_to[0].evolves_to[0].species.name
-                                }
-                              </p>
-                            </EvolutionItem>
-                          </>
-                        )}
-                      </>
-                    )}
-                  </EvolutionContainer>
-                )}
-              </TabContent>
-            </>
-          )}
-        </ModalContent>
-      </ModalOverlay>
+      <PokemonModal
+        pokemon={data.selectedPokemon as (PokemonDetail & { evolution_chain?: any }) | null}
+        isOpen={!!data.selectedPokemon}
+        onClose={() => setData((prevState) => ({ ...prevState, selectedPokemon: null }))}
+      />
     </Container>
   );
 };
