@@ -4,6 +4,13 @@ import { useGlobalContext } from '../../features/contexts/global';
 import { mainLogger as logger } from '../../shared/services/logger.service';
 import {
   Container,
+  ModalOverlay,
+  ModalContent,
+  CloseButton,
+  ModalImage,
+  EffectivenessSection,
+  EffectivenessList,
+  EffectivenessItem,
   Grid,
   Card,
   PokemonImage,
@@ -13,11 +20,14 @@ import {
   StatsContainer
 } from './style';
 import Loading from "../Loading";
-import { getBadgeColorByType, getEmojiByBadgeName } from "../../shared/utils";
+import { getBadgeColorByType, getEmojiByBadgeName, typeEffectiveness } from "../../shared/utils";
 
 const PokemonsList: React.FC = () => {
   const { data, setData } = useGlobalContext();
+  const { selectedPokemon } = data;
+  
   const [isLoading, setIsLoading] = useState(false);
+  const [isModalOpen, setIsModalOpen] = useState(false);
 
   const loadMoreRef = useRef(null);
 
@@ -86,7 +96,18 @@ const PokemonsList: React.FC = () => {
     <Container>
       <Grid>
         {data.pokemonsList?.map((pokemon) => (
-          <Card key={pokemon.id}>
+          <Card 
+            key={pokemon.id}
+            onClick={() => {
+              setData((prevState) => ({ 
+                ...prevState, 
+                selectedPokemon: pokemon
+              }));
+              setIsModalOpen(true);
+            }}
+            style={{ cursor: 'pointer' }}
+            backgroundColor={getBadgeColorByType(pokemon.types[0].type.name)}
+          >
 
             <PokemonImage 
               src={pokemon.sprites.other["official-artwork"].front_default} 
@@ -115,6 +136,56 @@ const PokemonsList: React.FC = () => {
       <div ref={loadMoreRef} style={{ height: '20px', margin: '20px 0' }}>
         {isLoading && <Loading />}
       </div>
+
+      <ModalOverlay isOpen={isModalOpen}>
+        <ModalContent>
+          <CloseButton onClick={() => setIsModalOpen(false)}>&times;</CloseButton>
+          
+          {selectedPokemon && (
+            <>
+              <ModalImage
+                src={selectedPokemon.sprites.other["official-artwork"].front_default}
+                alt={selectedPokemon.name}
+              />
+              
+              <PokemonName style={{ fontSize: '1.5rem' }}>
+                {selectedPokemon.name}
+              </PokemonName>
+
+              <TypesContainer style={{ marginBottom: '15px' }}>
+                {selectedPokemon.types.map((type: any) => (
+                  <TypeBadge key={type.type.name} color={getBadgeColorByType(type.type.name)}>
+                    <span>{getEmojiByBadgeName(type.type.name)} {type.type.name}</span>
+                  </TypeBadge>
+                ))}
+              </TypesContainer>
+
+              <StatsContainer>
+                <p>Height: {selectedPokemon.height / 10}m</p>
+                <p>Weight: {selectedPokemon.weight / 10}kg</p>
+              </StatsContainer>
+
+              {selectedPokemon.types.map((pokemonType: any) => (
+                <EffectivenessSection key={pokemonType.type.name}>
+                  <h3>Type: {pokemonType.type.name}</h3>
+                  <EffectivenessList>
+                    {typeEffectiveness[pokemonType.type.name]?.strong.map((type: string) => (
+                      <EffectivenessItem key={`strong-${type}`} effect="strong">
+                        Strong against {type}
+                      </EffectivenessItem>
+                    ))}
+                    {typeEffectiveness[pokemonType.type.name]?.weak.map((type: string) => (
+                      <EffectivenessItem key={`weak-${type}`} effect="weak">
+                        Weak against {type}
+                      </EffectivenessItem>
+                    ))}
+                  </EffectivenessList>
+                </EffectivenessSection>
+              ))}
+            </>
+          )}
+        </ModalContent>
+      </ModalOverlay>
     </Container>
   );
 };

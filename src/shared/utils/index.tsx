@@ -61,3 +61,79 @@ export const getBadgeColorByType = (type: string): string => {
     const brightness = (r * 299 + g * 587 + b * 114) / 1000;
     return brightness < 128;
   };
+
+  // Type effectiveness data (simulated)
+export const typeEffectiveness: Record<string, { strong: string[], weak: string[] }> = {
+  fire: {
+    strong: ['grass', 'ice', 'bug', 'steel'],
+    weak: ['water', 'rock', 'ground']
+  },
+  water: {
+    strong: ['fire', 'ground', 'rock'],
+    weak: ['electric', 'grass']
+  },
+  grass: {
+    strong: ['water', 'ground', 'rock'],
+    weak: ['fire', 'ice', 'poison', 'flying', 'bug']
+  },
+  electric: {
+    strong: ['water', 'flying'],
+    weak: ['ground']
+  },
+  ice: {
+    strong: ['grass', 'ground', 'flying', 'dragon'],
+    weak: ['fire', 'fighting', 'rock', 'steel']
+  },
+  fighting: {
+    strong: ['normal', 'ice', 'rock', 'dark', 'steel'],
+    weak: ['flying', 'psychic', 'fairy']
+  },
+  poison: {
+    strong: ['grass', 'fairy'],
+    weak: ['ground', 'psychic']
+  },
+  ground: {
+    strong: ['fire', 'electric', 'poison', 'rock', 'steel'],
+    weak: ['water', 'grass', 'ice']
+  },
+  flying: {
+    strong: ['grass', 'fighting', 'bug'],
+    weak: ['electric', 'ice', 'rock']
+  },
+  psychic: {
+    strong: ['fighting', 'poison'],
+    weak: ['dark', 'ghost', 'bug']
+  },
+  bug: {
+    strong: ['grass', 'psychic', 'dark'],
+    weak: ['fire', 'flying', 'rock']
+  },
+  rock: {
+    strong: ['fire', 'ice', 'flying', 'bug'],
+    weak: ['water', 'grass', 'fighting', 'ground', 'steel']
+  },
+  ghost: {
+    strong: ['psychic', 'ghost'],
+    weak: ['dark', 'ghost']
+  },
+  dragon: {
+    strong: ['dragon'],
+    weak: ['ice', 'dragon', 'fairy']
+  },
+  dark: {
+    strong: ['psychic', 'ghost'],
+    weak: ['fighting', 'bug', 'fairy']
+  },
+  steel: {
+    strong: ['ice', 'rock', 'fairy'],
+    weak: ['fire', 'fighting', 'ground']
+  },
+  fairy: {
+    strong: ['fighting', 'dragon', 'dark'],
+    weak: ['poison', 'steel']
+  },
+  normal: {
+    strong: [],
+    weak: ['fighting']
+  }
+};
