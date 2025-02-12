@@ -1,3 +1,5 @@
+import { PokemonDetail, AutoCompletion } from '../../shared/services/pokemon.service';
+
 interface PaginationData {
   currentPage: number;
   totalPages: number;
@@ -5,8 +7,9 @@ interface PaginationData {
 
 interface GlobalContextType {
   paginationData: PaginationData;
-  pokemonsList: any;
-  selectedPokemon: any;
+  pokemonsList?: PokemonDetail[];
+  selectedPokemon?: PokemonDetail | null;
+  autoCompletionList?: AutoCompletion[];
 }
 
 export { GlobalContextType };

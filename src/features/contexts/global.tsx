@@ -1,4 +1,4 @@
-import React, { createContext, useState } from "react";
+import React, { createContext, useState, useContext } from "react";
 import { GlobalContextType } from "../../core/types/global.context.types";
 
 export const GlobalContext = createContext<{
@@ -10,7 +10,7 @@ export const GlobalContext = createContext<{
       currentPage: 1,
       totalPages: 1
     },
-    pokemonsList: null,
+    pokemonsList: [],
     selectedPokemon: null
   },
   setData: () => {
@@ -18,13 +18,13 @@ export const GlobalContext = createContext<{
   }
 });
 
-function GlobalContextProvider({ children }: { children: React.ReactNode }) {
+export default function GlobalContextProvider({ children }: { children: React.ReactNode }) {
   const [data, setData] = useState<GlobalContextType>({
     paginationData: {
       currentPage: 1,
       totalPages: 1
     },
-    pokemonsList: null,
+    pokemonsList: [],
     selectedPokemon: null
   });
 
@@ -35,4 +35,11 @@ function GlobalContextProvider({ children }: { children: React.ReactNode }) {
   );
 }
 
-export default GlobalContextProvider;
+export function useGlobalContext() {
+  const context = useContext(GlobalContext);
+
+  const { data, setData } = context;
+
+  return { data, setData };
+}
+
