@@ -1,54 +1,34 @@
-import { app, BrowserWindow } from 'electron';
-import path from 'node:path';
+import { app } from 'electron';
 import started from 'electron-squirrel-startup';
 
-// Handle creating/removing shortcuts on Windows when installing/uninstalling.
+import { WindowService } from './features/window/services/window.service';
+import { configService } from './shared/config/config.service';
+import { AppHandler } from './main/handlers/app.handler';
+import { mainLogger as logger } from './shared/services/logger.service';
+
+logger.info('Starting Electron application');
+
+// Manipula a criação/remoção de atalhos no Windows ao instalar/desinstalar
 if (started) {
+  logger.info('Windows installer is running, quitting application');
   app.quit();
 }
 
-const createWindow = () => {
-  // Create the browser window.
-  const mainWindow = new BrowserWindow({
-    width: 800,
-    height: 600,
-    webPreferences: {
-      preload: path.join(__dirname, 'preload.js'),
-    },
-  });
-
-  // and load the index.html of the app.
-  if (MAIN_WINDOW_VITE_DEV_SERVER_URL) {
-    mainWindow.loadURL(MAIN_WINDOW_VITE_DEV_SERVER_URL);
-  } else {
-    mainWindow.loadFile(path.join(__dirname, `../renderer/${MAIN_WINDOW_VITE_NAME}/index.html`));
-  }
-
-  // Open the DevTools.
-  mainWindow.webContents.openDevTools();
-};
-
-// This method will be called when Electron has finished
-// initialization and is ready to create browser windows.
-// Some APIs can only be used after this event occurs.
-app.on('ready', createWindow);
-
-// Quit when all windows are closed, except on macOS. There, it's common
-// for applications and their menu bar to stay active until the user quits
-// explicitly with Cmd + Q.
-app.on('window-all-closed', () => {
-  if (process.platform !== 'darwin') {
+/**
+* Inicializa serviços e manipuladores de aplicativos
+* Seguindo o padrão de injeção de dependência para melhor testabilidade e manutenibilidade
+*/
+function bootstrap(): void {
+  try {
+    logger.debug('Bootstrapping application services');
+    const windowService = new WindowService();
+    new AppHandler(windowService, configService);
+    logger.info('Application services initialized successfully');
+  } catch (error) {
+    logger.error('Failed to initialize application', error as Error);
     app.quit();
   }
-});
+}
 
-app.on('activate', () => {
-  // On OS X it's common to re-create a window in the app when the
-  // dock icon is clicked and there are no other windows open.
-  if (BrowserWindow.getAllWindows().length === 0) {
-    createWindow();
-  }
-});
-
-// In this file you can include the rest of your app's specific main process
-// code. You can also put them in separate files and import them here.
+// Inicializar o aplicativo
+bootstrap();
