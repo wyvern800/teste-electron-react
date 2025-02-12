@@ -9,7 +9,8 @@ const base = {
   pokemonsList: [],
   selectedPokemon: null,
   isDarkMode: false,
-  autoCompletionList: []
+  autoCompletionList: [],
+  favorites: []
 }
 
 export const GlobalContext = createContext<{
@@ -34,9 +35,20 @@ export default function GlobalContextProvider({ children }: { children: React.Re
 
 export function useGlobalContext() {
   const context = useContext(GlobalContext);
-
   const { data, setData } = context;
 
-  return { data, setData };
-}
+  const toggleFavorite = (pokemonId: string) => {
+    setData(prev => ({
+      ...prev,
+      favorites: prev.favorites.includes(pokemonId)
+        ? prev.favorites.filter(id => id !== pokemonId)
+        : [...prev.favorites, pokemonId]
+    }));
+  };
 
+  const isFavorite = (pokemonId: string) => {
+    return data.favorites.includes(pokemonId);
+  };
+
+  return { data, setData, toggleFavorite, isFavorite };
+}

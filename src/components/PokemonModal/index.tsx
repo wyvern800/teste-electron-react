@@ -1,4 +1,5 @@
 import React, { useState } from "react";
+import { AiOutlineHeart, AiFillHeart } from "react-icons/ai";
 import { PokemonDetail } from "../../shared/services/pokemon.service";
 import { Badge } from "../Badge";
 import Modal from "../Modal";
@@ -22,6 +23,7 @@ import {
   EvolutionItem,
   EvolutionArrow,
   EffectiveSpan,
+  FavoriteButton,
 } from "./style";
 import {
   getBadgeColorByType,
@@ -72,7 +74,7 @@ const EvolutionChain: React.FC<EvolutionChainProps> = ({ chain, isDark }) => {
 
 const PokemonModal: React.FC<PokemonModalProps> = ({ pokemon, isOpen, onClose }) => {
   const [activeTab, setActiveTab] = useState<"about" | "stats">("about");
-  const { data } = useGlobalContext();
+  const { data, toggleFavorite, isFavorite } = useGlobalContext();
 
   const getMeasure = (value: number) => {
     return value / 10;
@@ -82,6 +84,14 @@ const PokemonModal: React.FC<PokemonModalProps> = ({ pokemon, isOpen, onClose })
 
   return (
     <Modal isOpen={isOpen} onClose={onClose}>
+      <FavoriteButton
+        isDark={data.isDarkMode}
+        className={isFavorite(pokemon.id.toString()) ? 'active' : ''}
+        onClick={() => toggleFavorite(pokemon.id.toString())}
+        color={getBadgeColorByType(pokemon.types[0].type.name)}
+      >
+        {isFavorite(pokemon.id.toString()) ? <AiFillHeart /> : <AiOutlineHeart />}
+      </FavoriteButton>
       <ModalImage
         src={pokemon.sprites.other["official-artwork"].front_default}
         alt={pokemon.name}

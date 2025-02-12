@@ -11,6 +11,7 @@ interface GlobalContextType {
   selectedPokemon?: PokemonDetail | null;
   autoCompletionList?: PokemonDetail[];
   isDarkMode: boolean;
+  favorites: string[];
 }
 
 export { GlobalContextType };

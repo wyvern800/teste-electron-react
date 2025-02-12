@@ -1,4 +1,5 @@
 import React, { useEffect, useRef, useCallback, useState } from "react";
+import { AiFillHeart } from "react-icons/ai";
 import {
   pokemonService,
   PokemonDetail,
@@ -27,7 +28,7 @@ import { FaMoon } from "react-icons/fa";
 import { LuSunMoon } from "react-icons/lu";
 
 const PokemonsList: React.FC = () => {
-  const { data, setData } = useGlobalContext();
+  const { data, setData, isFavorite } = useGlobalContext();
 
   const [isLoading, setIsLoading] = useState(false);
   const [searchTerm, setSearchTerm] = useState("");
@@ -210,6 +211,7 @@ const PokemonsList: React.FC = () => {
             style={{ cursor: "pointer" }}
             backgroundColor={getBadgeColorByType(pokemon.types[0].type.name)}
             isDark={data.isDarkMode}
+            isFavorite={isFavorite(pokemon.id.toString())}
           >
             <PokemonImage
               src={pokemon.sprites.other["official-artwork"].front_default}

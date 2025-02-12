@@ -95,16 +95,23 @@ export const Grid = styled.div`
 interface CardProps {
   backgroundColor?: string;
   isDark?: boolean;
+  isFavorite?: boolean;
 }
 
 export const Card = styled.div<CardProps>`
-  border: 1px solid #ccc;
+  border: ${props => 
+    props.isFavorite 
+      ? `2px solid ${props.backgroundColor}${props.isDark ? 'FF' : '99'}`
+      : '1px solid #ccc'};
   border-radius: 8px;
   padding: clamp(8px, 2vw, 16px);
   text-align: center;
   transition: transform 0.2s ease;
   background: ${props => props.backgroundColor ? `${props.backgroundColor}${props.isDark ? '66' : '33'}` : props.isDark ? '#333' : 'white'};
-  box-shadow: 0 2px 4px ${props => props.isDark ? 'rgba(0,0,0,0.3)' : 'rgba(0,0,0,0.1)'};
+  box-shadow: ${props => 
+    props.isFavorite 
+      ? `0 2px 8px ${props.backgroundColor}${props.isDark ? '99' : '66'}`
+      : `0 2px 4px ${props.isDark ? 'rgba(0,0,0,0.3)' : 'rgba(0,0,0,0.1)'}`};
 
   &:hover {
     transform: translateY(-2px);

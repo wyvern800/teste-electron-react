@@ -4,6 +4,28 @@ interface ThemeProps {
   isDark?: boolean;
 }
 
+export const FavoriteButton = styled.button<ThemeProps>`
+  position: absolute;
+  top: 10px;
+  left: 10px;
+  background: none;
+  border: none;
+  cursor: pointer;
+  font-size: 24px;
+  color: ${props => props.isDark ? '#fff' : '#333'};
+  padding: 8px;
+  border-radius: 50%;
+  transition: transform 0.2s;
+
+  &:hover {
+    transform: scale(1.1);
+  }
+
+  &.active {
+    color: ${props => props.color || (props.isDark ? '#fff' : '#333')};
+  }
+`;
+
 export const ModalImage = styled.img`
   width: 200px;
   height: 200px;
