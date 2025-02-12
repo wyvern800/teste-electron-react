@@ -5,24 +5,32 @@ import {
 } from "../../shared/services/pokemon.service";
 import { useGlobalContext } from "../../features/contexts/global";
 import { mainLogger as logger } from "../../shared/services/logger.service";
-import { Container, Grid, Card, PokemonImage, PokemonName, TypesContainer } from "./style";
+import {
+  Container,
+  Grid,
+  Card,
+  PokemonImage,
+  PokemonName,
+  TypesContainer,
+  SearchContainer,
+  SearchInput,
+  AutocompleteResults,
+} from "./style";
+import AutocompleteItem from "../AutocompleteItem";
 import { Badge } from "../Badge";
 import Loading from "../Loading";
 import PokemonModal from "../PokemonModal";
-import {
-  getBadgeColorByType,
-  getEmojiByBadgeName,
-  typeEffectiveness,
-  getBarColor,
-  capitalizeFirst,
-} from "../../shared/utils";
-
-const spritesUrl = `https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/other/official-artwork/`;
+import { getBadgeColorByType, getEmojiByBadgeName } from "../../shared/utils";
 
 const PokemonsList: React.FC = () => {
   const { data, setData } = useGlobalContext();
 
   const [isLoading, setIsLoading] = useState(false);
+  const [searchTerm, setSearchTerm] = useState("");
+  const [autocompleteResults, setAutocompleteResults] = useState<
+    PokemonDetail[]
+  >([]);
+  const [showAutocomplete, setShowAutocomplete] = useState(false);
   const loadMoreRef = useRef(null);
 
   const fetchPokemonWithEvolutions = async (id: number) => {
@@ -69,6 +77,20 @@ const PokemonsList: React.FC = () => {
     fetchPokemons(1);
   }, [fetchPokemons]);
 
+  // Load autocomplete data on first render
+  useEffect(() => {
+    const fetchAutoCompletion = async () => {
+      const autoComplete = await pokemonService.buildAutoComplete();
+
+      // populate autocomplete list when we have results
+      setData((prevState) => ({
+        ...prevState,
+        autoCompletionList: autoComplete.results,
+      }));
+    };
+    fetchAutoCompletion();
+  }, []);
+
   // Infinite scrolling implementation using Intersection Observer
   useEffect(() => {
     // Create an observer that triggers when the load more element becomes visible
@@ -102,8 +124,64 @@ const PokemonsList: React.FC = () => {
     return <Loading />;
   }
 
+  const handleSearch = async (value: string) => {
+    setSearchTerm(value);
+    if (value.length >= 2) {
+      try {
+        const autoCompletionList = data.autoCompletionList ?? [];
+        const filteredResults = autoCompletionList.filter((pokemon) =>
+          pokemon.name.toLowerCase().includes(value.toLowerCase())
+        );
+        setAutocompleteResults(filteredResults);
+        setShowAutocomplete(true);
+      } catch (error) {
+        logger.error("Error fetching autocomplete results", error as Error);
+      }
+    } else {
+      setAutocompleteResults([]);
+      setShowAutocomplete(false);
+    }
+  };
+
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      if (
+        showAutocomplete &&
+        !(event.target as HTMLElement).closest(".autocomplete")
+      ) {
+        setShowAutocomplete(false);
+      }
+    };
+
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => document.removeEventListener("mousedown", handleClickOutside);
+  }, [showAutocomplete]);
+
   return (
     <Container>
+      <SearchContainer className="autocomplete">
+        <SearchInput
+          type="text"
+          placeholder="Search Pokemon..."
+          value={searchTerm}
+          onChange={(e) => handleSearch(e.target.value)}
+        />
+        {showAutocomplete && autocompleteResults.length > 0 && (
+          <AutocompleteResults>
+            {autocompleteResults.map((pokemon) => (
+              <AutocompleteItem
+                key={pokemon.id}
+                pokemon={pokemon}
+                onClick={() => {
+                  fetchPokemonWithEvolutions(pokemon.id);
+                  setShowAutocomplete(false);
+                  setSearchTerm("");
+                }}
+              />
+            ))}
+          </AutocompleteResults>
+        )}
+      </SearchContainer>
       <Grid>
         {data.pokemonsList?.map((pokemon) => (
           <Card
@@ -128,8 +206,6 @@ const PokemonsList: React.FC = () => {
                 />
               ))}
             </TypesContainer>
-
-           
           </Card>
         ))}
       </Grid>
@@ -139,9 +215,15 @@ const PokemonsList: React.FC = () => {
       </div>
 
       <PokemonModal
-        pokemon={data.selectedPokemon as (PokemonDetail & { evolution_chain?: any }) | null}
+        pokemon={
+          data.selectedPokemon as
+            | (PokemonDetail & { evolution_chain?: any })
+            | null
+        }
         isOpen={!!data.selectedPokemon}
-        onClose={() => setData((prevState) => ({ ...prevState, selectedPokemon: null }))}
+        onClose={() =>
+          setData((prevState) => ({ ...prevState, selectedPokemon: null }))
+        }
       />
     </Container>
   );

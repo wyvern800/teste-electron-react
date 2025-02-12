@@ -9,7 +9,7 @@ interface GlobalContextType {
   paginationData: PaginationData;
   pokemonsList?: PokemonDetail[];
   selectedPokemon?: PokemonDetail | null;
-  autoCompletionList?: AutoCompletion[];
+  autoCompletionList?: PokemonDetail[];
   isDarkMode: boolean;
 }
 

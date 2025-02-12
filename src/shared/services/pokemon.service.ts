@@ -10,6 +10,13 @@ interface PokemonListResponse {
   }>;
 }
 
+interface AutoCompletion {
+  count: number;
+  next: string | null;
+  previous: string | null;
+  results: PokemonDetail[];
+}
+
 interface PokemonDetail {
   id: number;
   name: string;
@@ -57,13 +64,6 @@ interface EvolutionChain {
       }>;
     }>;
   };
-}
-
-interface AutoCompletion {
-  count: number;
-  next: string | null;
-  previous: string | null;
-  results: PokemonDetail[];
 }
 
 class PokemonService {
@@ -125,13 +125,13 @@ class PokemonService {
     const pokemonResponse = await this.axios.get<PokemonDetail>(
       `/pokemon/${nameOrId}`
     );
-    
+
     try {
       // Get species data to get evolution chain URL
       const speciesResponse = await this.axios.get(
         `/pokemon-species/${nameOrId}`
       );
-      
+
       // Get evolution chain data
       const evolutionResponse = await this.axios.get<EvolutionChain>(
         speciesResponse.data.evolution_chain.url
@@ -139,10 +139,10 @@ class PokemonService {
 
       return {
         ...pokemonResponse.data,
-        evolution_chain: evolutionResponse.data
+        evolution_chain: evolutionResponse.data,
       };
     } catch (error) {
-      console.error('Error fetching evolution chain:', error);
+      console.error("Error fetching evolution chain:", error);
       return pokemonResponse.data;
     }
   }
@@ -153,7 +153,7 @@ class PokemonService {
    * @returns Returns a list of Pokemon for auto-completion
    */
   public async buildAutoComplete(): Promise<AutoCompletion> {
-    const response = await this.getPokemonList(undefined, 2000);
+    const response = await this.getPokemonList(1, 2000);
     return response;
   }
 }

@@ -1,5 +1,41 @@
 import styled from 'styled-components';
 
+export const SearchContainer = styled.div`
+  margin-bottom: 20px;
+  position: relative;
+  max-width: 300px;
+  width: 100%;
+`;
+
+export const SearchInput = styled.input`
+  width: 100%;
+  padding: 8px 12px;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+  font-size: 16px;
+  
+  &:focus {
+    outline: none;
+    border-color: #007bff;
+    box-shadow: 0 0 0 2px rgba(0,123,255,0.25);
+  }
+`;
+
+export const AutocompleteResults = styled.div`
+  position: absolute;
+  top: 100%;
+  left: 0;
+  right: 0;
+  background: white;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+  margin-top: 4px;
+  max-height: 300px;
+  overflow-y: auto;
+  z-index: 1000;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+`;
+
 export const Container = styled.div`
   padding: clamp(10px, 2vw, 20px);
   border: 1px solid black;
