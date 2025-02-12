@@ -14,9 +14,6 @@
     "jsx": "react-jsx",
     "lib": ["DOM", "ESNext"],
     "strict": true,
-    "paths": {
-      "@/*": ["src/*"]
-    }
   },
   "include": ["src"]
 }
