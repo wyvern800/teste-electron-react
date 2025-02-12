@@ -2,6 +2,11 @@ import { styled }  from "styled-components";
 
 interface ModalOverlayProps {
   isOpen: boolean;
+  isDark?: boolean;
+}
+
+interface ThemeProps {
+  isDark?: boolean;
 }
 
 export const ModalOverlay = styled.div<ModalOverlayProps>`
@@ -17,8 +22,9 @@ export const ModalOverlay = styled.div<ModalOverlayProps>`
   z-index: 1000;
 `;
 
-export const ModalContent = styled.div`
-  background: white;
+export const ModalContent = styled.div<ThemeProps>`
+  background: ${props => props.isDark ? '#333' : 'white'};
+  color: ${props => props.isDark ? '#fff' : 'inherit'};
   padding: 20px;
   border-radius: 8px;
   position: relative;
@@ -28,7 +34,7 @@ export const ModalContent = styled.div`
   overflow-y: auto;
 `;
 
-export const CloseButton = styled.button`
+export const CloseButton = styled.button<ThemeProps>`
   position: absolute;
   right: 10px;
   top: 10px;
@@ -36,8 +42,8 @@ export const CloseButton = styled.button`
   border: none;
   font-size: 24px;
   cursor: pointer;
-  color: #666;
+  color: ${props => props.isDark ? '#999' : '#666'};
   &:hover {
-    color: #000;
+    color: ${props => props.isDark ? '#fff' : '#000'};
   }
 `;

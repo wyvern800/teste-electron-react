@@ -1,5 +1,6 @@
 import React from "react";
 import { ModalOverlay, ModalContent, CloseButton } from "./style";
+import { useGlobalContext } from "../../features/contexts/global";
 
 interface ModalProps {
   isOpen: boolean;
@@ -8,10 +9,12 @@ interface ModalProps {
 }
 
 const Modal: React.FC<ModalProps> = ({ isOpen, onClose, children }) => {
+  const { data } = useGlobalContext();
+
   return (
-    <ModalOverlay isOpen={isOpen}>
-      <ModalContent>
-        <CloseButton onClick={onClose}>&times;</CloseButton>
+    <ModalOverlay isOpen={isOpen} isDark={data.isDarkMode}>
+      <ModalContent isDark={data.isDarkMode}>
+        <CloseButton onClick={onClose} isDark={data.isDarkMode}>&times;</CloseButton>
         {children}
       </ModalContent>
     </ModalOverlay>

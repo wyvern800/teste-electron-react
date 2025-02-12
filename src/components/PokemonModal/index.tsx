@@ -2,6 +2,7 @@ import React, { useState } from "react";
 import { PokemonDetail } from "../../shared/services/pokemon.service";
 import { Badge } from "../Badge";
 import Modal from "../Modal";
+import { useGlobalContext } from "../../features/contexts/global";
 import {
   ModalImage,
   EffectivenessSection,
@@ -43,6 +44,7 @@ interface PokemonModalProps {
 
 const PokemonModal: React.FC<PokemonModalProps> = ({ pokemon, isOpen, onClose }) => {
   const [activeTab, setActiveTab] = useState<"about" | "stats">("about");
+  const { data } = useGlobalContext();
 
   const getMeasure = (value: number) => {
     return value / 10;
@@ -57,7 +59,12 @@ const PokemonModal: React.FC<PokemonModalProps> = ({ pokemon, isOpen, onClose })
         alt={pokemon.name}
       />
 
-      <h2 style={{ fontSize: "1.5rem", textAlign: "center", textTransform: "capitalize" }}>
+      <h2 style={{ 
+        fontSize: "1.5rem", 
+        textAlign: "center", 
+        textTransform: "capitalize",
+        color: data.isDarkMode ? '#fff' : 'inherit'
+      }}>
         {pokemon.name}
       </h2>
 
@@ -72,23 +79,25 @@ const PokemonModal: React.FC<PokemonModalProps> = ({ pokemon, isOpen, onClose })
         ))}
       </TypesContainer>
 
-      <TabsContainer>
+      <TabsContainer isDark={data.isDarkMode}>
         <Tab
           active={activeTab === "about"}
           onClick={() => setActiveTab("about")}
+          isDark={data.isDarkMode}
         >
           About
         </Tab>
         <Tab
           active={activeTab === "stats"}
           onClick={() => setActiveTab("stats")}
+          isDark={data.isDarkMode}
         >
           Stats
         </Tab>
       </TabsContainer>
 
       <TabContent active={activeTab === "about"}>
-        <StatsContainer>
+        <StatsContainer isDark={data.isDarkMode}>
           <ul>
             <li><RxHeight style={{ marginRight: '3px' }} /> Height: {getMeasure(pokemon.height)}m</li>
             <li><LuWeight style={{ marginRight: '3px' }} /> Weight: {getMeasure(pokemon.weight)}kg</li>
@@ -96,7 +105,7 @@ const PokemonModal: React.FC<PokemonModalProps> = ({ pokemon, isOpen, onClose })
         </StatsContainer>
 
         {pokemon.types.map((pokemonType: any) => (
-          <EffectivenessSection key={pokemonType.type.name}>
+          <EffectivenessSection key={pokemonType.type.name} isDark={data.isDarkMode}>
             <h3>Type: {capitalizeFirst(pokemonType.type.name)}</h3>
             <EffectivenessList>
               {typeEffectiveness[pokemonType.type.name]?.strong.map(
@@ -104,15 +113,20 @@ const PokemonModal: React.FC<PokemonModalProps> = ({ pokemon, isOpen, onClose })
                   <EffectivenessItem
                     key={`strong-${type}`}
                     effect="strong"
+                    isDark={data.isDarkMode}
                   >
-                    Strong against <EffectiveSpan>{capitalizeFirst(type)}</EffectiveSpan>
+                    Strong against <EffectiveSpan isDark={data.isDarkMode}>{capitalizeFirst(type)}</EffectiveSpan>
                   </EffectivenessItem>
                 )
               )}
               {typeEffectiveness[pokemonType.type.name]?.weak.map(
                 (type: string) => (
-                  <EffectivenessItem key={`weak-${type}`} effect="weak">
-                    Weak against <EffectiveSpan>{capitalizeFirst(type)}</EffectiveSpan>
+                  <EffectivenessItem 
+                    key={`weak-${type}`} 
+                    effect="weak"
+                    isDark={data.isDarkMode}
+                  >
+                    Weak against <EffectiveSpan isDark={data.isDarkMode}>{capitalizeFirst(type)}</EffectiveSpan>
                   </EffectivenessItem>
                 )
               )}
@@ -124,20 +138,21 @@ const PokemonModal: React.FC<PokemonModalProps> = ({ pokemon, isOpen, onClose })
       <TabContent active={activeTab === "stats"}>
         {pokemon.stats?.map((stat: any) => (
           <StatRow key={stat.stat.name}>
-            <StatLabel>{getStatIcon(stat.stat.name)} {stat.stat.name}</StatLabel>
-            <StatValue>{stat.base_stat}</StatValue>
-            <StatBar>
+            <StatLabel isDark={data.isDarkMode}>{getStatIcon(stat.stat.name)} {stat.stat.name}</StatLabel>
+            <StatValue isDark={data.isDarkMode}>{stat.base_stat}</StatValue>
+            <StatBar isDark={data.isDarkMode}>
               <StatFill
                 value={stat.base_stat}
                 fillColor={getBarColor(stat.stat.name)}
+                isDark={data.isDarkMode}
               />
             </StatBar>
           </StatRow>
         ))}
 
         {pokemon.evolution_chain && (
-          <EvolutionContainer>
-            <EvolutionItem>
+          <EvolutionContainer isDark={data.isDarkMode}>
+            <EvolutionItem isDark={data.isDarkMode}>
               <img
                 src={`${spritesUrl}${pokemon.evolution_chain.chain.species.url
                   .split("/")
@@ -151,8 +166,8 @@ const PokemonModal: React.FC<PokemonModalProps> = ({ pokemon, isOpen, onClose })
 
             {pokemon.evolution_chain.chain.evolves_to.length > 0 && (
               <>
-                <EvolutionArrow>→</EvolutionArrow>
-                <EvolutionItem>
+                <EvolutionArrow isDark={data.isDarkMode}>→</EvolutionArrow>
+                <EvolutionItem isDark={data.isDarkMode}>
                   <img
                     src={`${spritesUrl}${pokemon.evolution_chain.chain.evolves_to[0].species.url
                       .split("/")
@@ -173,8 +188,8 @@ const PokemonModal: React.FC<PokemonModalProps> = ({ pokemon, isOpen, onClose })
                 {pokemon.evolution_chain.chain.evolves_to[0]
                   .evolves_to.length > 0 && (
                   <>
-                    <EvolutionArrow>→</EvolutionArrow>
-                    <EvolutionItem>
+                    <EvolutionArrow isDark={data.isDarkMode}>→</EvolutionArrow>
+                    <EvolutionItem isDark={data.isDarkMode}>
                       <img
                         src={`${spritesUrl}${pokemon.evolution_chain.chain.evolves_to[0].evolves_to[0].species.url
                           .split("/")

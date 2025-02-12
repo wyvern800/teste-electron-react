@@ -15,12 +15,16 @@ import {
   SearchContainer,
   SearchInput,
   AutocompleteResults,
+  SearchWrapper,
+  ThemeToggleButton,
 } from "./style";
 import AutocompleteItem from "../AutocompleteItem";
 import { Badge } from "../Badge";
 import Loading from "../Loading";
 import PokemonModal from "../PokemonModal";
 import { getBadgeColorByType, getEmojiByBadgeName } from "../../shared/utils";
+import { FaMoon } from "react-icons/fa";
+import { LuSunMoon } from "react-icons/lu";
 
 const PokemonsList: React.FC = () => {
   const { data, setData } = useGlobalContext();
@@ -157,17 +161,26 @@ const PokemonsList: React.FC = () => {
     return () => document.removeEventListener("mousedown", handleClickOutside);
   }, [showAutocomplete]);
 
+  const toggleTheme = () => {
+    setData(prevState => ({
+      ...prevState,
+      isDarkMode: !prevState.isDarkMode
+    }));
+  };
+
   return (
-    <Container>
-      <SearchContainer className="autocomplete">
+    <Container isDark={data.isDarkMode}>
+      <SearchWrapper isDark={data.isDarkMode}>
+        <SearchContainer className="autocomplete" isDark={data.isDarkMode}>
         <SearchInput
           type="text"
           placeholder="Search Pokemon..."
           value={searchTerm}
           onChange={(e) => handleSearch(e.target.value)}
+          isDark={data.isDarkMode}
         />
         {showAutocomplete && autocompleteResults.length > 0 && (
-          <AutocompleteResults>
+          <AutocompleteResults isDark={data.isDarkMode}>
             {autocompleteResults.map((pokemon) => (
               <AutocompleteItem
                 key={pokemon.id}
@@ -181,7 +194,14 @@ const PokemonsList: React.FC = () => {
             ))}
           </AutocompleteResults>
         )}
-      </SearchContainer>
+        </SearchContainer>
+        <ThemeToggleButton 
+          onClick={toggleTheme} 
+          isDark={data.isDarkMode}
+        >
+          {data.isDarkMode ? <LuSunMoon /> : <FaMoon />}
+        </ThemeToggleButton>
+      </SearchWrapper>
       <Grid>
         {data.pokemonsList?.map((pokemon) => (
           <Card
@@ -189,12 +209,13 @@ const PokemonsList: React.FC = () => {
             onClick={() => fetchPokemonWithEvolutions(pokemon.id)}
             style={{ cursor: "pointer" }}
             backgroundColor={getBadgeColorByType(pokemon.types[0].type.name)}
+            isDark={data.isDarkMode}
           >
             <PokemonImage
               src={pokemon.sprites.other["official-artwork"].front_default}
               alt={pokemon.name}
             />
-            <PokemonName>{pokemon.name}</PokemonName>
+            <PokemonName isDark={data.isDarkMode}>{pokemon.name}</PokemonName>
 
             <TypesContainer>
               {pokemon.types.map((type) => (
