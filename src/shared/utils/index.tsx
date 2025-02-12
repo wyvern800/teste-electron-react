@@ -62,6 +62,18 @@ export const getBadgeColorByType = (type: string): string => {
     return colors[statName] || '#f0f0f0';
   }
 
+  export const getStatIcon = (statName: number): string => {
+    const colors: { [key: string]: string } = {
+      'hp': '❤️',
+      'attack': '⚔️',
+      'defense': '🛡️',
+      'special-attack': '🔥',
+      'special-defense': '📿',
+      'speed': '⚡'
+    }
+    return colors[statName] || '#f0f0f0';
+  }
+
   export const isColorDark = (hexColor: string): boolean => {
     // Remove the hash if present
     const color = hexColor.replace('#', '');

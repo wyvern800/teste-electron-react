@@ -28,7 +28,10 @@ import {
   typeEffectiveness,
   getBarColor,
   capitalizeFirst,
+  getStatIcon
 } from "../../shared/utils";
+import { LuWeight } from "react-icons/lu";
+import { RxHeight } from "react-icons/rx";
 
 const spritesUrl = `https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/other/official-artwork/`;
 
@@ -87,8 +90,8 @@ const PokemonModal: React.FC<PokemonModalProps> = ({ pokemon, isOpen, onClose })
       <TabContent active={activeTab === "about"}>
         <StatsContainer>
           <ul>
-            <li>Height: {getMeasure(pokemon.height)}m</li>
-            <li>Weight: {getMeasure(pokemon.weight)}kg</li>
+            <li><RxHeight style={{ marginRight: '3px' }} /> Height: {getMeasure(pokemon.height)}m</li>
+            <li><LuWeight style={{ marginRight: '3px' }} /> Weight: {getMeasure(pokemon.weight)}kg</li>
           </ul>
         </StatsContainer>
 
@@ -121,7 +124,7 @@ const PokemonModal: React.FC<PokemonModalProps> = ({ pokemon, isOpen, onClose })
       <TabContent active={activeTab === "stats"}>
         {pokemon.stats?.map((stat: any) => (
           <StatRow key={stat.stat.name}>
-            <StatLabel>{stat.stat.name}</StatLabel>
+            <StatLabel>{getStatIcon(stat.stat.name)} {stat.stat.name}</StatLabel>
             <StatValue>{stat.base_stat}</StatValue>
             <StatBar>
               <StatFill

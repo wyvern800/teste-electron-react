@@ -37,7 +37,13 @@ export const StatsContainer = styled.div`
   ul {
     list-style: none;
     padding: 0;
+    
   }
+
+  li { 
+    display: flex; 
+    align-items: center
+    }
 `;
 
 export const TabsContainer = styled.div`
