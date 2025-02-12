@@ -54,7 +54,7 @@ const PokemonModal: React.FC<PokemonModalProps> = ({ pokemon, isOpen, onClose })
         alt={pokemon.name}
       />
 
-      <h2 style={{ fontSize: "1.5rem", textAlign: "center" }}>
+      <h2 style={{ fontSize: "1.5rem", textAlign: "center", textTransform: "capitalize" }}>
         {pokemon.name}
       </h2>
 
